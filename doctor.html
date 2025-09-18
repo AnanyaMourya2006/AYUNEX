@@ -1,42 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AYUNEX - Doctor Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+<meta charset="UTF-8">
+<title>AYUNEX - Doctor Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Doctor Dashboard</h1>
-        </header>
+<div class="container">
+    <header>
+        <h1>🩺 Doctor Dashboard</h1>
+        <p>Add patient records and diagnose diseases using text or voice.</p>
+    </header>
 
-        <main>
-            <section class="card">
-                <h2>Add Patient Record</h2>
-                <input type="text" id="patientName" placeholder="Patient Name">
-                <input type="number" id="patientAge" placeholder="Age">
-                <select id="patientGender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-                <textarea id="diagnosisText" placeholder="Enter diagnosis or symptoms"></textarea>
-                <button class="btn" onclick="addPatient()">Add Record</button>
-                <div id="addOutput"></div>
-            </section>
+    <main>
+        <section class="card">
+            <h2>Add Patient Record</h2>
+            <input type="text" id="patientName" placeholder="Patient Name">
+            <input type="number" id="patientAge" placeholder="Age">
+            <select id="patientGender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <textarea id="diagnosisText" placeholder="Enter diagnosis or symptoms"></textarea>
+            <button class="btn" onclick="startVoiceRecognition()">🎤 Use Voice</button>
+            <button class="btn" onclick="addPatient()">Add Record</button>
+            <div id="addOutput"></div>
+        </section>
 
-            <section class="card">
-                <h2>All Patients</h2>
-                <button class="btn" onclick="showPatients()">View Patients</button>
-                <div id="patientRecords"></div>
-            </section>
-        </main>
+        <section class="card">
+            <h2>All Patients</h2>
+            <button class="btn" onclick="showPatients()">View Patients</button>
+            <div id="patientRecords"></div>
+        </section>
+    </main>
 
-        <footer>
-            <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
-        </footer>
-    </div>
+    <footer>
+        <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
+    </footer>
+</div>
 </body>
 </html>
