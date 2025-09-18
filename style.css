@@ -8,7 +8,7 @@ body {
 .container {
     max-width: 900px;
     margin: auto;
-    padding: 20px;
+    padding: 40px 20px;
     text-align: center;
 }
 
@@ -18,7 +18,7 @@ header {
 
 .logo {
     width: 100px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 h1 {
@@ -26,23 +26,20 @@ h1 {
     margin-bottom: 10px;
 }
 
-h2 {
-    color: #4CAF50;
-}
-
 h3 {
-    color: #2E7D32;
+    color: #4CAF50;
     margin-bottom: 20px;
 }
 
 p {
     color: #555;
+    font-size: 16px;
 }
 
 .btn {
     display: inline-block;
     padding: 12px 25px;
-    margin: 10px;
+    margin: 15px 10px;
     background-color: #4CAF50;
     color: white;
     font-weight: bold;
@@ -57,7 +54,7 @@ p {
 }
 
 footer {
-    margin-top: 40px;
+    margin-top: 50px;
     color: #777;
 }
 
@@ -85,9 +82,4 @@ input, select, textarea {
 textarea {
     height: 80px;
     resize: none;
-}
-
-#addOutput, #patientRecords {
-    margin-top: 15px;
-    color: #333;
 }
