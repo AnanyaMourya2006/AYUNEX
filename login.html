@@ -1,23 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AYUNEX - Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+<meta charset="UTF-8">
+<title>AYUNEX - Patient Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>Login to AYUNEX</h1>
-        <p>Select your role to continue:</p>
+        <h1>🩺 Patient Dashboard</h1>
+        <p>View your diagnoses with codes and preventive measures.</p>
     </header>
 
     <main>
-        <div class="role-selection">
-            <button class="btn" onclick="window.location.href='{{ url_for('doctor_dashboard') }}'">Doctor</button>
-            <button class="btn" onclick="window.location.href='{{ url_for('patient_dashboard') }}'">Patient</button>
+        {% for patient in patients %}
+        <div class="card" style="background:#f0fff0; padding:10px; margin:10px 0;">
+            <h3>{{ patient.name }} ({{ patient.gender }}, {{ patient.age }} yrs)</h3>
+            {% for diag in patient.diagnoses %}
+            <p>
+                <b>{{ diag.disease_name }}</b><br>
+                NAMASTE: {{ diag.namaste }}<br>
+                ICD-11: {{ diag.icd11 }}<br>
+                SNOMED: {{ diag.snomed }}<br>
+                LOINC: {{ diag.loinc }}<br>
+                Preventive Measures: {{ diag.preventive }}<br>
+                Added: {{ diag.timestamp.strftime('%Y-%m-%d %H:%M') }}
+            </p>
+            <hr>
+            {% endfor %}
         </div>
+        {% endfor %}
     </main>
 
     <footer>
