@@ -134,3 +134,4 @@ function startVoiceRecognition() {
         alert("Error in voice recognition: " + event.error);
     }
 }
+
