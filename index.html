@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>AYUNEX - Welcome</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <img src="logo.png" alt="AYUNEX Logo" class="logo">
-            <h1>🩺 AYUNEX</h1>
-            <h3>Government College of Pharmacy Amravati</h3>
-            <p>Developed by: E-SHASTRA</p>
-        </header>
+<div class="container">
+    <header>
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AYUNEX Logo" class="logo">
+        <h1>🩺 AYUNEX</h1>
+        <h3>College of Pharmaceutical Sciences</h3>
+        <p>Developed by: Student Team</p>
+    </header>
 
-        <main>
-            <p>Welcome to AYUNEX – Your AI-Assisted Healthcare Dashboard.</p>
-            <a href="login.html" class="btn">Continue →</a>
-        </main>
+    <main>
+        <p>Welcome to AYUNEX – Your AI-Assisted Healthcare Dashboard.</p>
+        <a href="{{ url_for('login') }}" class="btn">Continue →</a>
+    </main>
 
-        <footer>
-            <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
-        </footer>
-    </div>
+    <footer>
+        <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
+    </footer>
+</div>
 </body>
 </html>
