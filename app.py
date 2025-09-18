@@ -1,5 +1,4 @@
-# app.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -30,7 +29,7 @@ class Diagnosis(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 # -----------------------------
-# Disease Database (can expand)
+# Disease Database
 # -----------------------------
 disease_db = {
     "fever": {"NAMASTE":"NAM001","ICD11":"1A00","SNOMED":"386661006","LOINC":"8310-5",
@@ -63,17 +62,15 @@ def doctor_dashboard():
 
 @app.route('/dashboard/patient')
 def patient_dashboard():
-    # For simplicity, list all patients, later implement login
     patients = Patient.query.all()
     return render_template('patient.html', patients=patients)
 
 @app.route('/add_patient', methods=['POST'])
 def add_patient():
-    data = request.form
-    name = data.get('name')
-    age = data.get('age')
-    gender = data.get('gender')
-    diagnosis_text = data.get('diagnosis')
+    name = request.form.get('name')
+    age = request.form.get('age')
+    gender = request.form.get('gender')
+    diagnosis_text = request.form.get('diagnosis')
     if not name or not diagnosis_text:
         return "Missing data", 400
     
@@ -81,41 +78,23 @@ def add_patient():
     db.session.add(patient)
     db.session.commit()
     
-    # Match disease
-    matched = []
+    # Match diseases
     for key in disease_db:
         if key.lower() in diagnosis_text.lower():
             info = disease_db[key]
-            diag = Diagnosis(patient_id=patient.id,
-                             disease_name=key,
-                             namaste=info["NAMASTE"],
-                             icd11=info["ICD11"],
-                             snomed=info["SNOMED"],
-                             loinc=info["LOINC"],
-                             preventive=info["preventive"])
+            diag = Diagnosis(
+                patient_id=patient.id,
+                disease_name=key,
+                namaste=info["NAMASTE"],
+                icd11=info["ICD11"],
+                snomed=info["SNOMED"],
+                loinc=info["LOINC"],
+                preventive=info["preventive"]
+            )
             db.session.add(diag)
-            matched.append(key)
     db.session.commit()
     
     return redirect(url_for('doctor_dashboard'))
-
-@app.route('/get_patient/<int:id>')
-def get_patient(id):
-    patient = Patient.query.get(id)
-    if not patient:
-        return jsonify({"error":"Patient not found"}),404
-    diagnoses = []
-    for d in patient.diagnoses:
-        diagnoses.append({
-            "disease_name": d.disease_name,
-            "NAMASTE": d.namaste,
-            "ICD11": d.icd11,
-            "SNOMED": d.snomed,
-            "LOINC": d.loinc,
-            "preventive": d.preventive,
-            "timestamp": d.timestamp.strftime("%Y-%m-%d %H:%M")
-        })
-    return jsonify({"name":patient.name,"age":patient.age,"gender":patient.gender,"diagnoses":diagnoses})
 
 if __name__ == '__main__':
     db.create_all()
