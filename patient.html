@@ -4,13 +4,12 @@
 <meta charset="UTF-8">
 <title>AYUNEX - Patient Dashboard</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
 <div class="container">
     <header>
         <h1>🩺 Patient Dashboard</h1>
-        <p>View your diagnoses with codes and preventive measures.</p>
+        <p>View your diagnoses and preventive measures.</p>
     </header>
 
     <main>
@@ -24,7 +23,7 @@
                 ICD-11: {{ diag.icd11 }}<br>
                 SNOMED: {{ diag.snomed }}<br>
                 LOINC: {{ diag.loinc }}<br>
-                Preventive Measures: {{ diag.preventive }}<br>
+                Preventive: {{ diag.preventive }}<br>
                 Added: {{ diag.timestamp.strftime('%Y-%m-%d %H:%M') }}
             </p>
             <hr>
