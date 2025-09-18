@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>AYUNEX - Login</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Login to AYUNEX</h1>
-        </header>
+<div class="container">
+    <header>
+        <h1>Login to AYUNEX</h1>
+        <p>Select your role to continue:</p>
+    </header>
 
-        <main>
-            <p>Select your role to continue:</p>
-            <div class="role-selection">
-                <button class="btn" onclick="goToDashboard('doctor')">Doctor</button>
-                <button class="btn" onclick="goToDashboard('patient')">Patient</button>
-            </div>
-        </main>
+    <main>
+        <div class="role-selection">
+            <button class="btn" onclick="window.location.href='{{ url_for('doctor_dashboard') }}'">Doctor</button>
+            <button class="btn" onclick="window.location.href='{{ url_for('patient_dashboard') }}'">Patient</button>
+        </div>
+    </main>
 
-        <footer>
-            <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
-        </footer>
-    </div>
+    <footer>
+        <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
+    </footer>
+</div>
 </body>
 </html>
