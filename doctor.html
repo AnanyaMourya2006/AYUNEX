@@ -10,13 +10,13 @@
 <div class="container">
     <header>
         <h1>🩺 Doctor Dashboard</h1>
-        <p>Add patient records via text or voice. See versioned diagnoses with interoperable codes.</p>
+        <p>Add patient records using text or voice input.</p>
     </header>
 
     <main>
         <section class="card">
             <h2>Add Patient Record</h2>
-            <form action="{{ url_for('add_patient') }}" method="POST" id="patientForm">
+            <form action="{{ url_for('add_patient') }}" method="POST">
                 <input type="text" name="name" placeholder="Patient Name" required>
                 <input type="number" name="age" placeholder="Age" required>
                 <select name="gender">
@@ -28,7 +28,6 @@
                 <button type="button" class="btn" onclick="startVoiceRecognition()">🎤 Use Voice</button>
                 <button type="submit" class="btn">Add Record</button>
             </form>
-            <div id="addOutput"></div>
         </section>
 
         <section class="card">
@@ -43,7 +42,7 @@
                     ICD-11: {{ diag.icd11 }}<br>
                     SNOMED: {{ diag.snomed }}<br>
                     LOINC: {{ diag.loinc }}<br>
-                    Preventive Measures: {{ diag.preventive }}<br>
+                    Preventive: {{ diag.preventive }}<br>
                     Added: {{ diag.timestamp.strftime('%Y-%m-%d %H:%M') }}
                 </p>
                 <hr>
