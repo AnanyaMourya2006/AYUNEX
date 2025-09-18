@@ -3,36 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <title>AYUNEX - Doctor Dashboard</title>
-<link rel="stylesheet" href="style.css">
-<script src="script.js" defer></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
 <div class="container">
     <header>
         <h1>🩺 Doctor Dashboard</h1>
-        <p>Add patient records and diagnose diseases using text or voice.</p>
+        <p>Add patient records via text or voice. See versioned diagnoses with interoperable codes.</p>
     </header>
 
     <main>
         <section class="card">
             <h2>Add Patient Record</h2>
-            <input type="text" id="patientName" placeholder="Patient Name">
-            <input type="number" id="patientAge" placeholder="Age">
-            <select id="patientGender">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select>
-            <textarea id="diagnosisText" placeholder="Enter diagnosis or symptoms"></textarea>
-            <button class="btn" onclick="startVoiceRecognition()">🎤 Use Voice</button>
-            <button class="btn" onclick="addPatient()">Add Record</button>
+            <form action="{{ url_for('add_patient') }}" method="POST" id="patientForm">
+                <input type="text" name="name" placeholder="Patient Name" required>
+                <input type="number" name="age" placeholder="Age" required>
+                <select name="gender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <textarea name="diagnosis" id="diagnosisText" placeholder="Enter diagnosis/symptoms" required></textarea>
+                <button type="button" class="btn" onclick="startVoiceRecognition()">🎤 Use Voice</button>
+                <button type="submit" class="btn">Add Record</button>
+            </form>
             <div id="addOutput"></div>
         </section>
 
         <section class="card">
             <h2>All Patients</h2>
-            <button class="btn" onclick="showPatients()">View Patients</button>
-            <div id="patientRecords"></div>
+            {% for patient in patients %}
+            <div class="card" style="background:#f0fff0; padding:10px; margin:10px 0;">
+                <h3>{{ patient.name }} ({{ patient.gender }}, {{ patient.age }} yrs)</h3>
+                {% for diag in patient.diagnoses %}
+                <p>
+                    <b>{{ diag.disease_name }}</b><br>
+                    NAMASTE: {{ diag.namaste }}<br>
+                    ICD-11: {{ diag.icd11 }}<br>
+                    SNOMED: {{ diag.snomed }}<br>
+                    LOINC: {{ diag.loinc }}<br>
+                    Preventive Measures: {{ diag.preventive }}<br>
+                    Added: {{ diag.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                </p>
+                <hr>
+                {% endfor %}
+            </div>
+            {% endfor %}
         </section>
     </main>
 
