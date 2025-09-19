@@ -1,26 +1,150 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AYUNEX - Welcome</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="utf-8" />
+  <title>NAMASTE Terminology — Demo UI</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div class="container">
-    <header>
-        <h1>🩺 AYUNEX</h1>
-        <h3>College of Pharmaceutical Sciences</h3>
-        <p>Developed by: Student Team</p>
+<body class="bg-gradient-to-br from-indigo-50 to-emerald-50 min-h-screen font-sans">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-indigo-700">NAMASTE Terminology — Demo</h1>
+        <p class="text-sm text-slate-600">FHIR R4 demo: NAMASTE, WHO Ayurveda, ICD-11 TM2, ConceptMap, ValueSet lookup, translate, and Bundle upload.</p>
+      </div>
+      <div class="text-xs text-slate-500">Demo • India EHR (2016) style</div>
     </header>
 
-    <main>
-        <p>Welcome to AYUNEX – AI-Assisted Healthcare Dashboard.</p>
-        <a href="{{ url_for('login') }}" class="btn">Continue →</a>
+    <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Search & Lookup -->
+      <section class="col-span-2 bg-white rounded-xl shadow p-4">
+        <div class="flex gap-2 mb-3">
+          <input id="searchBox" class="flex-1 p-2 border rounded" placeholder="Search value-set (try 'Amla' or 'Nam-001')" />
+          <button id="searchBtn" class="px-4 py-2 rounded bg-indigo-600 text-white">Lookup</button>
+          <select id="systemSelect" class="p-2 border rounded">
+            <option value="">All systems</option>
+            <option value="NAMASTE">NAMASTE</option>
+            <option value="WHO-AYURVEDA">WHO-AYURVEDA</option>
+            <option value="ICD11-TM2">ICD11-TM2</option>
+          </select>
+        </div>
+
+        <div id="results" class="h-64 overflow-auto border rounded p-2 bg-slate-50"></div>
+      </section>
+
+      <!-- Tools -->
+      <aside class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold mb-2">Tools</h3>
+
+        <!-- Translate -->
+        <div class="mb-4">
+          <label class="text-sm text-slate-600">Translate (NAMASTE → TM2)</label>
+          <input id="translateCode" class="w-full p-2 border rounded mt-1" placeholder="Enter NAM code e.g. NAM-001" />
+          <button id="translateBtn" class="mt-2 w-full p-2 bg-emerald-600 text-white rounded">Translate</button>
+          <pre id="translateOut" class="mt-2 text-xs p-2 bg-gray-50 border rounded h-28 overflow-auto"></pre>
+        </div>
+
+        <!-- ICD lookup -->
+        <div class="mb-4">
+          <label class="text-sm text-slate-600">ICD-11 Biomed lookup</label>
+          <input id="icdCode" class="w-full p-2 border rounded mt-1" placeholder="Enter ICD or term e.g. TM2-1001 or Amla" />
+          <button id="icdBtn" class="mt-2 w-full p-2 bg-yellow-500 text-black rounded">Lookup ICD</button>
+          <pre id="icdOut" class="mt-2 text-xs p-2 bg-gray-50 border rounded h-28 overflow-auto"></pre>
+        </div>
+
+        <!-- Bundle upload -->
+        <div>
+          <label class="text-sm text-slate-600">Upload FHIR Bundle (double-coding)</label>
+          <input id="bundleFile" type="file" accept="application/json" class="block mt-2" />
+          <button id="uploadBtn" class="mt-2 w-full p-2 bg-indigo-600 text-white rounded">Upload Bundle</button>
+          <pre id="uploadOut" class="mt-2 text-xs p-2 bg-gray-50 border rounded h-28 overflow-auto"></pre>
+        </div>
+      </aside>
     </main>
 
-    <footer>
-        <p>&copy; 2025 AYUNEX | All Rights Reserved</p>
-    </footer>
-</div>
+    <footer class="mt-6 text-xs text-slate-500">Demo backend required. Edit BACKEND_URL in the script to your deployed backend URL (Render/Railway/Heroku).</footer>
+  </div>
+
+  <script>
+    // IMPORTANT: After you deploy backend, change this to the backend URL (https://...).
+    // If you deploy backend to Render, you'll get e.g. https://namaste-backend.onrender.com
+    const BACKEND_URL = "https://REPLACE_WITH_YOUR_BACKEND_URL";
+
+    function showJSON(elId, obj) {
+      document.getElementById(elId).textContent = JSON.stringify(obj, null, 2);
+    }
+
+    async function lookupValueSet(q, system) {
+      const url = new URL((BACKEND_URL || '') + '/fhir/ValueSet/$lookup');
+      url.searchParams.set('filter', q || '');
+      if (system) url.searchParams.set('system', system);
+      try {
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (err) {
+        return { error: err.message };
+      }
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const q = document.getElementById('searchBox').value.trim();
+      const sys = document.getElementById('systemSelect').value;
+      document.getElementById('results').textContent = 'Searching...';
+      const data = await lookupValueSet(q, sys);
+      document.getElementById('results').textContent = Array.isArray(data) ? data.map(d => d.code + ' — ' + d.display).join('\\n') : JSON.stringify(data, null, 2);
+    });
+
+    // Translate
+    document.getElementById('translateBtn').addEventListener('click', async () => {
+      const code = document.getElementById('translateCode').value.trim();
+      document.getElementById('translateOut').textContent = 'Translating...';
+      try {
+        const res = await fetch((BACKEND_URL || '') + '/fhir/ConceptMap/$translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, from: 'NAMASTE', to: 'TM2' })
+        });
+        const j = await res.json();
+        showJSON('translateOut', j);
+      } catch (e) {
+        showJSON('translateOut', { error: e.message });
+      }
+    });
+
+    // ICD lookup
+    document.getElementById('icdBtn').addEventListener('click', async () => {
+      const code = document.getElementById('icdCode').value.trim();
+      showJSON('icdOut', 'Looking up...');
+      try {
+        const url = new URL((BACKEND_URL || '') + '/fhir/icd11/lookup');
+        url.searchParams.set('code', code);
+        const res = await fetch(url.toString());
+        showJSON('icdOut', await res.json());
+      } catch (e) {
+        showJSON('icdOut', { error: e.message });
+      }
+    });
+
+    // Bundle upload
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
+      const f = document.getElementById('bundleFile').files[0];
+      if (!f) return showJSON('uploadOut', { error: 'Select a JSON FHIR Bundle file first' });
+      showJSON('uploadOut', 'Uploading...');
+      try {
+        const text = await f.text();
+        const json = JSON.parse(text);
+        const res = await fetch((BACKEND_URL || '') + '/fhir/Bundle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(json)
+        });
+        showJSON('uploadOut', await res.json());
+      } catch (e) {
+        showJSON('uploadOut', { error: e.message });
+      }
+    });
+  </script>
 </body>
 </html>
