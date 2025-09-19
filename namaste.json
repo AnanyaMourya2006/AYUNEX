@@ -1,0 +1,5 @@
+[
+  { "code": "NAM-001", "display": "Amla (Phyllanthus emblica)", "definition": "Indian gooseberry (Amla).", "system": "NAMASTE" },
+  { "code": "NAM-002", "display": "Ashwagandha (Withania somnifera)", "definition": "Adaptogenic herb.", "system": "NAMASTE" },
+  { "code": "NAM-003", "display": "Neem (Azadirachta indica)", "definition": "Neem tree.", "system": "NAMASTE" }
+]
