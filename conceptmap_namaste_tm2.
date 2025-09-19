@@ -1,0 +1,4 @@
+[
+  { "source": "NAM-001", "sourceDisplay": "Amla (Phyllanthus emblica)", "target": "TM2-1001", "targetDisplay": "Amla - traditional use", "equivalence": "equivalent" },
+  { "source": "NAM-002", "sourceDisplay": "Ashwagandha", "target": "TM2-2002", "targetDisplay": "Ashwagandha - traditional use", "equivalence": "equivalent" }
+]
