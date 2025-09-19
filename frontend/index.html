@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AYUNEX — NAMASTE Terminology (Demo)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50 min-h-screen">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-indigo-700">AYUNEX — NAMASTE Terminology</h1>
+        <p class="text-sm text-slate-600">Demo: FHIR R4-style terminology micro-service (NAMASTE, WHO, ICD-11 TM2)</p>
+      </div>
+      <div class="text-xs text-slate-500">Demo • India EHR (2016)</div>
+    </header>
+
+    <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section class="col-span-2 bg-white rounded-xl shadow p-4">
+        <div class="flex gap-2 mb-3">
+          <input id="searchBox" class="flex-1 p-2 border rounded" placeholder="Search (e.g. Amla or NAM-001)" />
+          <button id="searchBtn" class="px-4 py-2 rounded bg-indigo-600 text-white">Lookup</button>
+          <select id="systemSelect" class="p-2 border rounded">
+            <option value="">All systems</option>
+            <option value="NAMASTE">NAMASTE</option>
+            <option value="WHO-AYURVEDA">WHO-AYURVEDA</option>
+            <option value="ICD11-TM2">ICD11-TM2</option>
+          </select>
+        </div>
+
+        <div id="results" class="h-64 overflow-auto border rounded p-2 bg-slate-50 text-sm"></div>
+      </section>
+
+      <aside class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold mb-2">Tools</h3>
+
+        <div class="mb-4">
+          <label class="text-sm text-slate-600">Translate (NAMASTE → TM2)</label>
+          <input id="translateCode" class="w-full p-2 border rounded mt-1" placeholder="Enter NAM-001" />
+          <button id="translateBtn" class="mt-2 w-full p-2 bg-emerald-600 text-white rounded">Translate</button>
+          <pre id="translateOut" class="mt-2 text-xs p-2 bg-gray-50 border rounded h-28 overflow-auto"></pre>
+        </div>
+
+        <div class="mb-4">
+          <label class="text-sm text-slate-600">ICD-11 lookup</label>
+          <input id="icdCode" class="w-full p-2 border rounded mt-1" placeholder="Enter TM2-1001 or Amla" />
+          <button id="icdBtn" class="mt-2 w-full p-2 bg-yellow-500 text-black rounded">Lookup</button>
+          <pre id="icdOut" class="mt-2 text-xs p-2 bg-gray-50 border rounded h-28 overflow-auto"></pre>
+        </div>
+
+        <div>
+          <label class="text-sm text-slate-600">Upload FHIR Bundle</label>
+          <input id="bundleFile" type="file" accept="application/json" class="block mt-2" />
+          <button id="uploadBtn" class="mt-2 w-full p-2 bg-indigo-600 text-white rounded">Upload Bundle</button>
+          <pre id="uploadOut" class="mt-2 text-xs p-2 bg-gray-50 border rounded h-28 overflow-auto"></pre>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="mt-6 text-xs text-slate-500">After backend deploy, put BACKEND_URL into the script below.</footer>
+  </div>
+
+  <script>
+    // === EDIT THIS after Render deploy ===
+    const BACKEND_URL = "https://REPLACE_WITH_YOUR_RENDER_URL";
+    // =====================================
+
+    function show(el, text) { document.getElementById(el).textContent = typeof text === 'string' ? text : JSON.stringify(text, null, 2); }
+
+    async function lookup(q, system) {
+      const url = new URL((BACKEND_URL) + '/fhir/ValueSet/$lookup');
+      url.searchParams.set('filter', q || '');
+      if (system) url.searchParams.set('system', system);
+      const res = await fetch(url.toString());
+      return res.ok ? await res.json() : { error: 'Lookup failed, HTTP ' + res.status };
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const q = document.getElementById('searchBox').value.trim();
+      const sys = document.getElementById('systemSelect').value;
+      show('results', 'Searching...');
+      try {
+        const data = await lookup(q, sys);
+        if (Array.isArray(data)) {
+          show('results', data.map(d => d.code + ' — ' + d.display).join('\\n') || 'No results');
+        } else show('results', data);
+      } catch (e) { show('results', { error: e.message }); }
+    });
+
+    document.getElementById('translateBtn').addEventListener('click', async () => {
+      const code = document.getElementById('translateCode').value.trim();
+      show('translateOut', 'Translating...');
+      try {
+        const res = await fetch((BACKEND_URL) + '/fhir/ConceptMap/$translate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, from: 'NAMASTE', to: 'TM2' })
+        });
+        show('translateOut', await res.json());
+      } catch (e) { show('translateOut', { error: e.message }); }
+    });
+
+    document.getElementById('icdBtn').addEventListener('click', async () => {
+      const code = document.getElementById('icdCode').value.trim();
+      show('icdOut', 'Looking up...');
+      try {
+        const url = new URL((BACKEND_URL) + '/fhir/icd11/lookup');
+        url.searchParams.set('code', code);
+        const res = await fetch(url.toString());
+        show('icdOut', await res.json());
+      } catch (e) { show('icdOut', { error: e.message }); }
+    });
+
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
+      const f = document.getElementById('bundleFile').files[0];
+      if (!f) return show('uploadOut', { error: 'Select a JSON FHIR Bundle file first' });
+      show('uploadOut', 'Uploading...');
+      try {
+        const text = await f.text();
+        const json = JSON.parse(text);
+        const res = await fetch((BACKEND_URL) + '/fhir/Bundle', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(json)
+        });
+        show('uploadOut', await res.json());
+      } catch (e) { show('uploadOut', { error: e.message }); }
+    });
+  </script>
+</body>
+</html>
