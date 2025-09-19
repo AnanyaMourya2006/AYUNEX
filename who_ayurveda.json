@@ -1,0 +1,5 @@
+[
+  { "code": "AYU-001", "display": "Phyllanthus emblica", "definition": "Amla (WHO Ayurveda)", "system": "WHO-AYURVEDA" },
+  { "code": "AYU-002", "display": "Withania somnifera", "definition": "Ashwagandha (WHO Ayurveda)", "system": "WHO-AYURVEDA" },
+  { "code": "AYU-003", "display": "Azadirachta indica", "definition": "Neem (WHO Ayurveda)", "system": "WHO-AYURVEDA" }
+]
